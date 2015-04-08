@@ -20,6 +20,6 @@ type User struct {
 
 func (client *TwitchClient) GetUser(username string) User {
 	twitchUser := User{}
-	client.getRequest(fmt.Sprintf("/user/%s", username), &twitchUser)
+	client.getRequest(fmt.Sprintf("/user/%s", username), nil, &twitchUser)
 	return twitchUser
 }

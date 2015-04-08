@@ -16,8 +16,8 @@ type SubscriptionResponse struct {
 	Subscriptions []Subscription `json:"subscriptions"`
 }
 
-func (client *TwitchClient) GetChannelSubscriptions(channel string) SubscriptionResponse {
+func (client *TwitchClient) GetChannelSubscriptions(channel string, options *RequestOptions) SubscriptionResponse {
 	res := SubscriptionResponse{}
-	client.getRequest(fmt.Sprintf("/channels/%s/subscriptions", channel), &res)
+	client.getRequest(fmt.Sprintf("/channels/%s/subscriptions", channel), options, &res)
 	return res
 }
