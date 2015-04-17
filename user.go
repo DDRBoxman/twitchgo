@@ -18,8 +18,13 @@ type User struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-func (client *TwitchClient) GetUser(username string) User {
-	twitchUser := User{}
-	client.getRequest(fmt.Sprintf("/user/%s", username), nil, &twitchUser)
-	return twitchUser
+func (client *TwitchClient) GetUser(username string) (*User, error) {
+	twitchUser := &User{}
+
+	err := client.getRequest(fmt.Sprintf("/user/%s", username), nil, twitchUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return twitchUser, nil
 }

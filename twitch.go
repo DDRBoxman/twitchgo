@@ -2,6 +2,7 @@ package twitch
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -44,6 +45,11 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 		return err
 	}
 	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("Request failed with status: %v", res.StatusCode)
+	}
+
 	body, _ := ioutil.ReadAll(res.Body)
 	err = json.Unmarshal(body, v)
 	if err != nil {
