@@ -2,12 +2,13 @@ package twitch
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
 type Stream struct {
 	CreatedAt time.Time `json:"created_at"`
-	Id        string    `json:"_id"`
+	Id        int64     `json:"_id"`
 	Viewers   int64     `json:"viewers"`
 	Game      string    `json:"game"`
 	Channel   Channel   `json:"channel"`
@@ -18,8 +19,21 @@ type StreamResponse struct {
 	Stream Stream `json:"stream"`
 }
 
-func (client *TwitchClient) GetChannelStream(channel string, options *RequestOptions) StreamResponse {
+type StreamsResponse struct {
+	Total   int64    `json:"_total"`
+	Streams []Stream `json:"streams"`
+}
+
+func (client *TwitchClient) GetChannelStream(channel string, options *RequestOptions) (StreamResponse, error) {
 	res := StreamResponse{}
-	client.getRequest(fmt.Sprintf("/streams/%s", channel), options, &res)
-	return res
+	err := client.getRequest(fmt.Sprintf("/streams/%s", channel), options, &res)
+	return res, err
+}
+
+func (client *TwitchClient) GetChannelsStream(channels ...string) (StreamsResponse, error) {
+	res := StreamsResponse{}
+
+	channelsString := strings.Join(channels, ",")
+	err := client.getRequest(fmt.Sprintf("/streams?limit=%d&channel=%s", len(channels), channelsString), nil, &res)
+	return res, err
 }

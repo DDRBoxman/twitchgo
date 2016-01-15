@@ -19,6 +19,7 @@ type RequestOptions struct {
 	Limit     int64  `url:"limit"`
 	Offset    int64  `url:"offset"`
 	Direction string `url:"direction"`
+	Channel   string `url:"channel"`
 }
 
 func NewTwitchClient(httpClient *http.Client) TwitchClient {
