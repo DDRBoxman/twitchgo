@@ -57,8 +57,6 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 		targetUrl += "?" + v.Encode()
 	}
 
-	fmt.Println(targetUrl)
-
 	req, _ := http.NewRequest("GET", targetUrl, nil)
 	req.Header.Set("Accept", "application/vnd.twitchtv.v3+json")
 	res, err := client.httpClient.Do(req)
