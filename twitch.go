@@ -19,6 +19,7 @@ type RequestOptions struct {
 	Offset    int64  `url:"offset"`
 	Direction string `url:"direction"`
 	Nonce     int64  `url:"_"`
+	Channel   string `url:"channel"`
 }
 
 func NewTwitchClient(httpClient *http.Client) TwitchClient {
@@ -47,6 +48,10 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 
 		if options.Nonce != 0 {
 			v.Add("_", fmt.Sprintf("%d", options.Nonce))
+		}
+
+		if options.Channel != "" {
+			v.Add("channel", options.Channel)
 		}
 
 		targetUrl += "?" + v.Encode()
