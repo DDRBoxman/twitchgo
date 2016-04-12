@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/google/go-querystring/query"
+	"net/url"
 )
 
-const baseUrl = "https://api.twitch.tv/kraken/"
+const baseUrl = "https://api.twitch.tv/kraken"
 
 type TwitchClient struct {
 	httpClient *http.Client
@@ -19,6 +18,7 @@ type RequestOptions struct {
 	Limit     int64  `url:"limit"`
 	Offset    int64  `url:"offset"`
 	Direction string `url:"direction"`
+	Nonce     int64  `url:"_"`
 	Channel   string `url:"channel"`
 }
 
@@ -28,18 +28,38 @@ func NewTwitchClient(httpClient *http.Client) TwitchClient {
 	}
 }
 
-func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions, v interface{}) error {
-	url := baseUrl + endpoint
+func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions, out interface{}) error {
+	targetUrl := baseUrl + endpoint
 
 	if options != nil {
-		v, err := query.Values(options)
-		if err != nil {
-			return err
+		v := url.Values{}
+
+		if options.Direction != "" {
+			v.Add("direction", options.Direction)
 		}
-		url += "?" + v.Encode()
+
+		if options.Limit != 0 {
+			v.Add("limit", fmt.Sprintf("%d", options.Limit))
+		}
+
+		if options.Offset != 0 {
+			v.Add("offset", fmt.Sprintf("%d", options.Offset))
+		}
+
+		if options.Nonce != 0 {
+			v.Add("_", fmt.Sprintf("%d", options.Nonce))
+		}
+
+		if options.Channel != "" {
+			v.Add("channel", options.Channel)
+		}
+
+		targetUrl += "?" + v.Encode()
 	}
 
-	req, _ := http.NewRequest("GET", url, nil)
+	fmt.Println(targetUrl)
+
+	req, _ := http.NewRequest("GET", targetUrl, nil)
 	req.Header.Set("Accept", "application/vnd.twitchtv.v3+json")
 	res, err := client.httpClient.Do(req)
 	if err != nil {
@@ -52,7 +72,7 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 	}
 
 	body, _ := ioutil.ReadAll(res.Body)
-	err = json.Unmarshal(body, v)
+	err = json.Unmarshal(body, out)
 	if err != nil {
 		return err
 	}
