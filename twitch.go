@@ -11,7 +11,8 @@ import (
 const baseUrl = "https://api.twitch.tv/kraken"
 
 type TwitchClient struct {
-	httpClient *http.Client
+	HttpClient *http.Client
+	ClientID   string
 }
 
 type RequestOptions struct {
@@ -22,9 +23,17 @@ type RequestOptions struct {
 	Channel   string `url:"channel"`
 }
 
-func NewTwitchClient(httpClient *http.Client) TwitchClient {
+func NewTwitchClient(clientID string) TwitchClient {
 	return TwitchClient{
-		httpClient: httpClient,
+		HttpClient: &http.Client{},
+		ClientID: clientID,
+	}
+}
+
+func NewTwitchClientWithHTTPClient(clientID string, httpClient *http.Client) TwitchClient {
+	return TwitchClient{
+		HttpClient: httpClient,
+		ClientID: clientID,
 	}
 }
 
@@ -59,7 +68,8 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 
 	req, _ := http.NewRequest("GET", targetUrl, nil)
 	req.Header.Set("Accept", "application/vnd.twitchtv.v3+json")
-	res, err := client.httpClient.Do(req)
+	req.Header.Set("Client-ID", client.ClientID)
+	res, err := client.HttpClient.Do(req)
 	if err != nil {
 		return err
 	}

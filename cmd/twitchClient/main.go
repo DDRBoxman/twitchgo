@@ -11,7 +11,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/ddrboxman/twitchgo"
@@ -24,8 +23,7 @@ func main() {
 		return
 	}
 
-	client := twitch.NewTwitchClient(&http.Client{})
-
+	client := twitch.NewTwitchClient("test")
 	channel, _ := client.GetChannel(os.Args[1])
 
 	fmt.Printf("%# v\n", pretty.Formatter(channel))
