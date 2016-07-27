@@ -6,9 +6,10 @@ import (
 )
 
 type Follow struct {
-	CreatedAt time.Time `json:"created_at"`
-	Id        string    `json:"_id"`
-	User      User      `json:"user"`
+	CreatedAt     time.Time `json:"created_at"`
+	Id            string    `json:"_id"`
+	User          User      `json:"user"`
+	Notifications bool      `json:"notifications"`
 }
 
 type FollowResponse struct {
