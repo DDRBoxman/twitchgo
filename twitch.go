@@ -26,14 +26,14 @@ type RequestOptions struct {
 func NewTwitchClient(clientID string) TwitchClient {
 	return TwitchClient{
 		HttpClient: &http.Client{},
-		ClientID: clientID,
+		ClientID:   clientID,
 	}
 }
 
 func NewTwitchClientWithHTTPClient(clientID string, httpClient *http.Client) TwitchClient {
 	return TwitchClient{
 		HttpClient: httpClient,
-		ClientID: clientID,
+		ClientID:   clientID,
 	}
 }
 
