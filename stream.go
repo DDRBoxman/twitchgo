@@ -15,8 +15,8 @@ type Stream struct {
 }
 
 type StreamResponse struct {
-	Total  int64  `json:"_total"`
-	Stream Stream `json:"stream"`
+	Total  int64   `json:"_total"`
+	Stream *Stream `json:"stream"`
 }
 
 type StreamsResponse struct {
