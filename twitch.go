@@ -21,6 +21,7 @@ type RequestOptions struct {
 	Direction string `url:"direction"`
 	Nonce     int64  `url:"_"`
 	Channel   string `url:"channel"`
+	Version string
 }
 
 func NewTwitchClient(clientID string) TwitchClient {
@@ -39,6 +40,7 @@ func NewTwitchClientWithHTTPClient(clientID string, httpClient *http.Client) Twi
 
 func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions, out interface{}) error {
 	targetUrl := baseUrl + endpoint
+	targetVersion := "3"
 
 	if options != nil {
 		v := url.Values{}
@@ -63,11 +65,15 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 			v.Add("channel", options.Channel)
 		}
 
+		if options.Version != "" {
+			targetVersion = options.Version
+		}
+
 		targetUrl += "?" + v.Encode()
 	}
 
 	req, _ := http.NewRequest("GET", targetUrl, nil)
-	req.Header.Set("Accept", "application/vnd.twitchtv.v3+json")
+	req.Header.Set("Accept", fmt.Sprintf("application/vnd.twitchtv.v%s+json", targetVersion))
 	req.Header.Set("Client-ID", client.ClientID)
 	res, err := client.HttpClient.Do(req)
 	if err != nil {
