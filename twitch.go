@@ -45,38 +45,31 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 	if options != nil {
 		v := url.Values{}
 
-		requiresURLParams := false
 		if options.Direction != "" {
 			v.Add("direction", options.Direction)
-			requiresURLParams = true
 		}
 
 		if options.Limit != 0 {
 			v.Add("limit", fmt.Sprintf("%d", options.Limit))
-			requiresURLParams = true
 		}
 
 		if options.Offset != 0 {
 			v.Add("offset", fmt.Sprintf("%d", options.Offset))
-			requiresURLParams = true
 		}
 
 		if options.Nonce != 0 {
 			v.Add("_", fmt.Sprintf("%d", options.Nonce))
-			requiresURLParams = true
 		}
 
 		if options.Channel != "" {
 			v.Add("channel", options.Channel)
-			requiresURLParams = true
 		}
 
 		if options.Version != "" {
 			targetVersion = options.Version
-			requiresURLParams = true
 		}
 
-		if requiresURLParams {
+		if len(v) != 0 {
 			targetUrl += "?" + v.Encode()
 		}
 	}
