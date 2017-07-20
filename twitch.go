@@ -21,7 +21,7 @@ type RequestOptions struct {
 	Direction string `url:"direction"`
 	Nonce     int64  `url:"_"`
 	Channel   string `url:"channel"`
-	Version string
+	Version   string
 }
 
 func NewTwitchClient(clientID string) TwitchClient {
@@ -45,31 +45,40 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 	if options != nil {
 		v := url.Values{}
 
+		requiresURLParams := false
 		if options.Direction != "" {
 			v.Add("direction", options.Direction)
+			requiresURLParams = true
 		}
 
 		if options.Limit != 0 {
 			v.Add("limit", fmt.Sprintf("%d", options.Limit))
+			requiresURLParams = true
 		}
 
 		if options.Offset != 0 {
 			v.Add("offset", fmt.Sprintf("%d", options.Offset))
+			requiresURLParams = true
 		}
 
 		if options.Nonce != 0 {
 			v.Add("_", fmt.Sprintf("%d", options.Nonce))
+			requiresURLParams = true
 		}
 
 		if options.Channel != "" {
 			v.Add("channel", options.Channel)
+			requiresURLParams = true
 		}
 
 		if options.Version != "" {
 			targetVersion = options.Version
+			requiresURLParams = true
 		}
 
-		targetUrl += "?" + v.Encode()
+		if requiresURLParams {
+			targetUrl += "?" + v.Encode()
+		}
 	}
 
 	req, _ := http.NewRequest("GET", targetUrl, nil)

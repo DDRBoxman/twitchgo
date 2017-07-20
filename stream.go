@@ -12,6 +12,9 @@ type Stream struct {
 	Viewers   int64     `json:"viewers"`
 	Game      string    `json:"game"`
 	Channel   Channel   `json:"channel"`
+
+	// StreamType is only avaliable when querying with the V5 endpoint.
+	StreamType string `json:"stream_type"`
 }
 
 type StreamResponse struct {
@@ -35,5 +38,16 @@ func (client *TwitchClient) GetChannelsStream(channels ...string) (StreamsRespon
 
 	channelsString := strings.Join(channels, ",")
 	err := client.getRequest(fmt.Sprintf("/streams?limit=%d&channel=%s", len(channels), channelsString), nil, &res)
+	return res, err
+}
+
+func (client *TwitchClient) GetChannelsStreamV5(channelIDs ...string) (StreamsResponse, error) {
+	res := StreamsResponse{}
+	options := RequestOptions{
+		Version: "5",
+	}
+
+	channelsString := strings.Join(channelIDs, ",")
+	err := client.getRequest(fmt.Sprintf("/streams?limit=%d&channel=%s", len(channelIDs), channelsString), &options, &res)
 	return res, err
 }
