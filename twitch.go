@@ -23,7 +23,7 @@ type RequestOptions struct {
 	Nonce     int64  `url:"_"`
 	Channel   string `url:"channel"`
 	Version   string
-	Extra     url.Values
+	Extra     *url.Values
 }
 
 func NewTwitchClient(clientID string) TwitchClient {
@@ -77,6 +77,14 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 
 		if len(v) != 0 {
 			targetUrl += "?" + v.Encode()
+		}
+
+		if options.Extra != nil {
+			if len(v) != 0 {
+				targetUrl += "&" + options.Extra.Encode()
+			} else {
+			targetUrl += "?" + options.Extra.Encode()
+			}
 		}
 	}
 

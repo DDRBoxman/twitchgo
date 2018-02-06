@@ -49,6 +49,8 @@ var usersResponse = `
 `
 
 func Handler(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.URL)
+
 	fmt.Fprintf(w, "%s", usersResponse)
 }
 

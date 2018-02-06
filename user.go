@@ -3,7 +3,6 @@ package twitch
 import (
 	"fmt"
 	"time"
-	"strings"
 	"net/url"
 )
 
@@ -53,11 +52,16 @@ func (client *TwitchClient) GetUsers(id, login []string) (*[]HelixUser, error) {
 
 	options := &RequestOptions{
 		Version: "helix" ,
-		Extra: url.Values{},
+		Extra: &url.Values{},
 	}
 
-	options.Extra.Add("id", strings.Join(id, ","))
-	options.Extra.Add("login", strings.Join(login, ","))
+	for _, userID := range id {
+		options.Extra.Add("id", userID)
+	}
+
+	for _, userLogin := range login {
+		options.Extra.Add("login", userLogin)
+	}
 
 	err := client.getRequest("/users", options, usersResponse)
 	if err != nil {
