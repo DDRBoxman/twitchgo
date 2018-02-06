@@ -9,6 +9,7 @@ import (
 )
 
 const baseUrl = "https://api.twitch.tv/kraken"
+const helixBaseUrl = "https://api.twitch.tv/helix"
 
 type TwitchClient struct {
 	HttpClient *http.Client
@@ -22,6 +23,7 @@ type RequestOptions struct {
 	Nonce     int64  `url:"_"`
 	Channel   string `url:"channel"`
 	Version   string
+	Extra     url.Values
 }
 
 func NewTwitchClient(clientID string) TwitchClient {
@@ -43,6 +45,10 @@ func (client *TwitchClient) getRequest(endpoint string, options *RequestOptions,
 	targetVersion := "3"
 
 	if options != nil {
+		if options.Version == "helix" {
+			targetUrl = helixBaseUrl + endpoint
+		}
+
 		v := url.Values{}
 
 		if options.Direction != "" {
