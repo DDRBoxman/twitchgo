@@ -1,14 +1,15 @@
 package twitch_test
 
 import (
-	"net/url"
-	"net/http"
-	"path"
-	"testing"
-	"github.com/DDRBoxman/twitchgo"
-	"net/http/httptest"
 	"fmt"
 	"log"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"path"
+	"testing"
+
+	"github.com/ddrboxman/twitchgo"
 )
 
 // RewriteTransport is an http.RoundTripper that rewrites requests
