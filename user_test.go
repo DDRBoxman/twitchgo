@@ -46,7 +46,8 @@ var usersResponse = `
    "offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/dallas-channel_offline_image-1a2c906ee2c35f12-1920x1080.png",
    "view_count":191836881,
    "email":"login@provider.com"
-}]}
+},{"id":"89319907","login":"muxy01","display_name":"Muxy01","type":"","broadcaster_type":"partner","description":"","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/8f562ec9-c1b3-47aa-b0f3-afca6a914e00-profile_image-300x300.png","offline_image_url":"","view_count":4456}
+]}
 `
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -73,13 +74,21 @@ func TestHelixUsers(t *testing.T) {
 
 	twitchClient := twitch.NewTwitchClientWithHTTPClient("blah", client)
 
-	users, err := twitchClient.GetUsers(nil, []string{"dallas"})
+	users, err := twitchClient.GetUsers(nil, []string{"dallas", "muxy01"})
 
-	if len(*users) != 1 {
-		t.Errorf("Len of users was %d expected 1", len(*users))
+	if len(*users) != 2 {
+		t.Errorf("Len of users was %d expected 2", len(*users))
 	}
 
 	if (*users)[0].Login != "dallas" {
 		t.Errorf("Len of users was %s expected dallas", (*users)[0].Login)
+	}
+
+	if (*users)[0].IsPartnered() {
+		t.Errorf("dallas should not be partnered")
+	}
+
+	if !(*users)[1].IsPartnered() {
+		t.Errorf("muxy01 should be partnered")
 	}
 }
