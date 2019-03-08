@@ -2,8 +2,8 @@ package twitch
 
 import (
 	"fmt"
-	"time"
 	"net/url"
+	"time"
 )
 
 type User struct {
@@ -36,6 +36,10 @@ type HelixUser struct {
 	Email           string `json:"email"`
 }
 
+func (user *HelixUser) IsPartnered() bool {
+	return user.BroadcasterType == "partner"
+}
+
 func (client *TwitchClient) GetUser(username string) (*User, error) {
 	twitchUser := &User{}
 
@@ -51,8 +55,8 @@ func (client *TwitchClient) GetUsers(id, login []string) (*[]HelixUser, error) {
 	usersResponse := &helixUsersResponse{}
 
 	options := &RequestOptions{
-		Version: "helix" ,
-		Extra: &url.Values{},
+		Version: "helix",
+		Extra:   &url.Values{},
 	}
 
 	for _, userID := range id {
