@@ -25,8 +25,9 @@ func (client *TwitchClient) GetChannelFollows(channel string, options *RequestOp
 }
 
 type helixFollowResponse struct {
-	Total   int64         `json:"total"`
-	Follows []helixFollow `json:"data"`
+	Total      int64             `json:"total"`
+	Follows    []helixFollow     `json:"data"`
+	Pagination map[string]string `json:"pagination"`
 }
 
 type helixFollow struct {
@@ -37,8 +38,19 @@ type helixFollow struct {
 	FollowedAt time.Time `json:"followed_at"`
 }
 
-// GetFollowersForID requests follower information for a user/channel ID.
+/*
+GetFollowersForID requests follower information for a user/channel ID.
+
+https://dev.twitch.tv/docs/api/reference/#get-users-follows
+
+Follower data is sorted by Twitch: most recent follower first.
+
+A pagination cursor may be available in yourResponse.Pagination["cursor"]. This can be supplied in the options.Extra struct with the key "after" on subsequent calls.
+*/
 func (client *TwitchClient) GetFollowersForID(userID string, options *RequestOptions) (helixFollowResponse, error) {
+	if options == nil {
+		options = &RequestOptions{}
+	}
 	options.Version = "helix"
 
 	if options.Extra == nil {

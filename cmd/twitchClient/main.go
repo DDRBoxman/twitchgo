@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 
 	"github.com/ddrboxman/twitchgo"
@@ -94,17 +95,27 @@ var appCommands = []cli.Command{
 
 	{
 		Name:  "followers",
-		Usage: "print the first page of a channel's followers",
+		Usage: "print two pages of a channel's followers",
 		Action: func(c *cli.Context) error {
 			if c.NArg() < 1 {
 				return cli.NewExitError("must supply channel ID", 126)
 			}
 
-			options := twitch.RequestOptions{
-				Limit: 15,
+			// Get first page
+			followers, err := twitchClient.GetFollowersForID(c.Args().Get(0), nil)
+			if err != nil {
+				return err
 			}
 
-			followers, err := twitchClient.GetFollowersForID(c.Args().Get(0), &options)
+			pp.Println(followers)
+
+			// Get second page
+			options := twitch.RequestOptions{
+				Extra: &url.Values{},
+			}
+			options.Extra.Add("after", followers.Pagination["cursor"])
+
+			followers, err = twitchClient.GetFollowersForID(c.Args().Get(0), &options)
 			if err != nil {
 				return err
 			}
