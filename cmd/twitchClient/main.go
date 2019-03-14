@@ -12,6 +12,8 @@ import (
 	"net/url"
 	"os"
 
+	"golang.org/x/oauth2"
+
 	"github.com/ddrboxman/twitchgo"
 	"github.com/k0kubun/pp"
 
@@ -24,6 +26,7 @@ func main() {
 	app.EnableBashCompletion = true
 
 	var clientID string
+	var accessToken string
 	var verbosity int
 
 	app.Flags = []cli.Flag{
@@ -40,6 +43,13 @@ func main() {
 			EnvVar:      "TWITCH_CLIENT_ID",
 			Destination: &clientID,
 		},
+
+		cli.StringFlag{
+			Name:        "access_token",
+			Usage:       "OAuth access token to authorize certain requests",
+			EnvVar:      "TWITCH_ACCESS_TOKEN",
+			Destination: &accessToken,
+		},
 	}
 
 	app.Before = func(c *cli.Context) error {
@@ -47,7 +57,13 @@ func main() {
 			return cli.NewExitError("Twitch client ID was not specified", 1)
 		}
 
-		twitchClient = twitch.NewTwitchClient(clientID)
+		if accessToken == "" {
+			twitchClient = twitch.NewTwitchClient(clientID)
+		} else {
+			token := &oauth2.Token{AccessToken: accessToken}
+			client := (&oauth2.Config{}).Client(oauth2.NoContext, token)
+			twitchClient = twitch.NewTwitchClientWithHTTPClient(clientID, client)
+		}
 
 		if verbosity > 0 {
 			// Print HTTP requests and possibly bodies
@@ -121,6 +137,25 @@ var appCommands = []cli.Command{
 			}
 
 			pp.Println(followers)
+
+			return nil
+		},
+	},
+
+	{
+		Name:  "subscribers",
+		Usage: "print a channel's subscribers",
+		Action: func(c *cli.Context) error {
+			if c.NArg() < 1 {
+				return cli.NewExitError("must supply channel ID", 126)
+			}
+
+			subs, err := twitchClient.GetSubscribersForID(c.Args().Get(0), nil)
+			if err != nil {
+				return err
+			}
+
+			pp.Println(subs)
 
 			return nil
 		},
