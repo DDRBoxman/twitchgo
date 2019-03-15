@@ -2,6 +2,7 @@ package twitch
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -49,5 +50,50 @@ func (client *TwitchClient) GetChannelsStreamV5(channelIDs ...string) (StreamsRe
 
 	channelsString := strings.Join(channelIDs, ",")
 	err := client.getRequest(fmt.Sprintf("/streams?limit=%d&channel=%s", len(channelIDs), channelsString), &options, &res)
+	return res, err
+}
+
+type helixStream struct {
+	ID           string    `json:"id"`
+	UserID       string    `json:"user_id"`
+	UserName     string    `json:"user_name"`
+	GameID       string    `json:"game_id"`
+	CommunityIDs []string  `json:"community_ids"`
+	Type         string    `json:"type"`
+	Title        string    `json:"title"`
+	ViewerCount  int       `json:"viewer_count"`
+	StartedAt    time.Time `json:"started_at"`
+	Language     string    `json:"language"`
+	ThumbnailURL string    `json:"thumbnail_url"`
+}
+
+type helixStreamsResponse struct {
+	Streams    []helixStream     `json:"data"`
+	Pagination map[string]string `json:"pagination"`
+}
+
+/*
+GetStreamsForIDs requests stream info for one or more channels.
+
+https://dev.twitch.tv/docs/api/reference/#get-streams
+
+A pagination cursor may be available in yourResponse.Pagination["cursor"]. This can be supplied in the options.Extra struct with the key "after" on subsequent calls.
+*/
+func (client *TwitchClient) GetStreamsForIDs(options *RequestOptions, channelIDs ...string) (res helixStreamsResponse, err error) {
+	if options == nil {
+		options = &RequestOptions{}
+	}
+
+	options.Version = "helix"
+
+	if options.Extra == nil {
+		options.Extra = &url.Values{}
+	}
+
+	for _, channel := range channelIDs {
+		options.Extra.Add("user_id", channel)
+	}
+
+	err = client.getRequest(fmt.Sprintf("/streams"), options, &res)
 	return res, err
 }
