@@ -67,9 +67,12 @@ type CommonChannelFields struct {
 	Followers                    int64     `json:"followers"`
 }
 
-type TwitchChannel interface{
+type TwitchChannel interface {
 	// GetBroadcasterType can be one of [partner|affiliate|'']
 	GetBroadcasterType() string
+
+	// GetProfileBanner returns the URL of the channel's profile banner, if set
+	GetProfileBanner() string
 }
 
 // Twtich API Channel v3 response
@@ -93,13 +96,17 @@ func (c *v3Channel) GetBroadcasterType() string {
 // ------------------------------
 type v5Channel struct {
 	Channel
-	Id string `json:"_id"`
+	Id              string `json:"_id"`
 	BroadcasterType string `json:"broadcaster_type"`
 }
 
 // GetBroadcasterType returns the API `broadcaster_type` response.
 func (c *v5Channel) GetBroadcasterType() string {
 	return c.BroadcasterType
+}
+
+func (c *v5Channel) GetProfileBanner() string {
+	return c.ProfileBanner
 }
 
 // Versioned API Functions
@@ -110,7 +117,7 @@ func (c *v5Channel) GetBroadcasterType() string {
 func (client *TwitchClient) GetChannelForName(channelName string) (TwitchChannel, error) {
 	res := v5Channel{}
 
-	options := &RequestOptions{ Version: "3" }
+	options := &RequestOptions{Version: "3"}
 
 	err := client.getRequest(fmt.Sprintf("/channels/%s", channelName), options, &res)
 	if err != nil {
@@ -125,7 +132,7 @@ func (client *TwitchClient) GetChannelForName(channelName string) (TwitchChannel
 func (client *TwitchClient) GetChannelForId(channelId int64) (TwitchChannel, error) {
 	res := v5Channel{}
 
-	options := &RequestOptions{ Version: "5" }
+	options := &RequestOptions{Version: "5"}
 
 	err := client.getRequest(fmt.Sprintf("/channels/%d", channelId), options, &res)
 	if err != nil {
