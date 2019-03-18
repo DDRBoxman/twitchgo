@@ -160,4 +160,23 @@ var appCommands = []cli.Command{
 			return nil
 		},
 	},
+
+	{
+		Name:  "streams",
+		Usage: "print one or more channel's active streams",
+		Action: func(c *cli.Context) error {
+			if c.NArg() < 1 {
+				return cli.NewExitError("must supply at least one channel ID", 126)
+			}
+
+			streams, err := twitchClient.GetStreamsForIDs(nil, append([]string{c.Args().First()}, c.Args().Tail()...)...)
+			if err != nil {
+				return err
+			}
+
+			pp.Println(streams)
+
+			return nil
+		},
+	},
 }
