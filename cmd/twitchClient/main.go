@@ -80,6 +80,10 @@ func main() {
 			}
 		}
 
+		if verbosity > 1 {
+			fmt.Printf("Client ID: %s\nAccess Token: %s\n", clientID, accessToken)
+		}
+
 		return nil
 	}
 
@@ -150,9 +154,24 @@ var appCommands = []cli.Command{
 				return cli.NewExitError("must supply channel ID", 126)
 			}
 
-			subs, err := twitchClient.GetSubscribersForID(c.Args().Get(0), nil)
-			if err != nil {
-				return err
+			var subs []interface{}
+			var requestOptions *twitch.RequestOptions
+			for {
+				// Paginate subscriber data to get all subs
+				resp, err := twitchClient.GetSubscribersForID(c.Args().Get(0), requestOptions)
+				if err != nil {
+					return err
+				}
+
+				subs = append(subs, resp.Subscriptions)
+
+				if len(resp.Subscriptions) > 0 {
+					requestOptions = &twitch.RequestOptions{}
+					requestOptions.Extra = &url.Values{}
+					requestOptions.Extra.Add("after", resp.Pagination["cursor"])
+				} else {
+					break
+				}
 			}
 
 			pp.Println(subs)
