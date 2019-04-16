@@ -198,4 +198,23 @@ var appCommands = []cli.Command{
 			return nil
 		},
 	},
+
+	{
+		Name:  "videos",
+		Usage: "print a channel's video info",
+		Action: func(c *cli.Context) error {
+			if c.NArg() < 1 {
+				return cli.NewExitError("must supply a channel ID", 126)
+			}
+
+			videos, err := twitchClient.GetVideosForID(c.Args().First(), nil)
+			if err != nil {
+				return err
+			}
+
+			pp.Println(videos)
+
+			return nil
+		},
+	},
 }
